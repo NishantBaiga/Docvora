@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// @ts-ignore: side-effect import for global CSS
 import "./globals.css";
 import Header from "@/components/common/header";
 import { ThemeProvider } from "next-themes";
@@ -33,10 +34,8 @@ export default async function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ClerkThemeWrapper>
-            {/* <div className="relative flex flex-col h-screen overflow-hidden "> */}
             <Header />
             <div className="relative flex flex-col h-screen">
-              {/* <main className="flex-1 min-h-0 overflow-hidden">{children}</main> */}
               <SidebarProvider >
                 <main className="flex-1  ">{children}</main>
               </SidebarProvider>
