@@ -14,31 +14,21 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useEffect, useState } from "react";
 
 export default function WorkSpacePage() {
   const params = useParams();
   const fileId = params?.fileId as string;
-
   const { summary, loading } = useWorkspace(fileId);
-  const {
-    messages,
-    sending,
-    loadingMessages,
-    sendMessage,
-  } = useMessages(fileId);
+  const { messages, sending, loadingMessages, sendMessage } =
+    useMessages(fileId);
   const { pdfUrl, loadingPdf, downloadPdf } = usePdf(fileId);
 
   const [input, setInput] = useState("");
   const [activeTab, setActiveTab] = useState("chat");
 
-  // Mock data - replace with actual data from your API/hooks
-  const mockFiles = Array.from({ length: 20 }, (_, i) => ({
-    id: String(i + 1),
-    name: `Document ${i + 1}.pdf`,
-    createdAt: new Date().toISOString(),
-  }));
+  
 
   const handleUpload = () => {
     // Implement upload logic
@@ -52,19 +42,19 @@ export default function WorkSpacePage() {
         {/* Sidebar */}
         <WorkspaceSidebar
           fileId={fileId}
-          files={mockFiles}
+          // files={mockFiles}
           onUpload={handleUpload}
         />
 
         {/* Main Content */}
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
           className="flex-1 flex flex-col gap-0"
         >
           {/* Top Bar with Hamburger and Tabs */}
           <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-950 border-b">
-            <SidebarTrigger >
+            <SidebarTrigger>
               <Button size="icon" variant="ghost">
                 <Menu className="h-5 w-5" />
               </Button>
@@ -118,23 +108,22 @@ export default function WorkSpacePage() {
         {/* Sidebar */}
         <WorkspaceSidebar
           fileId={fileId}
-          files={mockFiles}
           onUpload={handleUpload}
         />
         {/* Main Content */}
         <div className="flex-1 ">
           <ResizablePanelGroup direction="horizontal" className="h-full">
-            <ResizablePanel defaultSize={45} minSize={0} >
+            <ResizablePanel defaultSize={45} minSize={0}>
               {/* <div className="h-full p-4 bg-gray-200 dark:bg-gray-800"> */}
-                <div className="h-full p-4  bg-white dark:bg-gray-900 rounded-lg overflow-hidden ">
-                  {loadingPdf ? (
-                    <div className="flex items-center justify-center h-full">
-                      Loading PDF...
-                    </div>
-                  ) : (
-                    pdfUrl && <iframe src={pdfUrl} className="w-full h-full" />
-                  )}
-                </div>
+              <div className="h-full p-4  bg-white dark:bg-gray-900 rounded-lg overflow-hidden ">
+                {loadingPdf ? (
+                  <div className="flex items-center justify-center h-full">
+                    Loading PDF...
+                  </div>
+                ) : (
+                  pdfUrl && <iframe src={pdfUrl} className="w-full h-full" />
+                )}
+              </div>
               {/* </div> */}
             </ResizablePanel>
 
@@ -155,8 +144,6 @@ export default function WorkSpacePage() {
           </ResizablePanelGroup>
         </div>
       </div>
-
     </>
   );
 }
-
