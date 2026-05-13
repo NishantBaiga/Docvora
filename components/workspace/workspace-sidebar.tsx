@@ -67,53 +67,67 @@ export default function WorkspaceSidebar({
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           Projects
         </SidebarGroup>
+        {loading ? (
+          <div className="space-y-2 p-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-md border p-3"
+              >
+                <div className="h-4 w-4 rounded bg-muted animate-pulse" />
 
-        <SidebarMenu className="p-2 group-data-[collapsible=icon]:hidden">
-          {filteredFiles.length === 0 ? (
-            <div className="p-4 text-center text-sm text-gray-500">
-              {searchQuery ? "No PDFs found" : "No PDFs uploaded yet"}
-            </div>
-          ) : (
-            filteredFiles.map((file) => (
-              <SidebarMenuItem key={file.id} className="relative group/item">
-                {/* FILE ROW */}
-                <SidebarMenuButton
-                  onClick={() => handleFileClick(file.id)}
-                  isActive={fileId === file.id}
-                  className="w-full justify-start pr-10"
-                >
-                  <FileText className="mr-2 h-4 w-4 shrink-0" />
-                  <div className="flex-1 overflow-hidden">
-                    <div className="truncate font-medium">{file.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {new Date(file.createdAt).toLocaleDateString()}
-                    </div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-3/4 rounded bg-muted animate-pulse" />
+                  <div className="h-2 w-1/3 rounded bg-muted animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredFiles.length === 0 ? (
+          <div className="p-4 text-center text-sm text-gray-500">
+            {searchQuery ? "No PDFs found" : "No PDFs uploaded yet"}
+          </div>
+        ) : (
+          filteredFiles.map((file) => (
+            <SidebarMenuItem key={file.id} className="relative group/item">
+              <SidebarMenuButton
+                onClick={() => handleFileClick(file.id)}
+                isActive={fileId === file.id}
+                className="w-full justify-start pr-10"
+              >
+                <FileText className="mr-2 h-4 w-4 shrink-0" />
+
+                <div className="flex-1 overflow-hidden">
+                  <div className="truncate font-medium">{file.name}</div>
+
+                  <div className="text-xs text-muted-foreground truncate">
+                    {new Date(file.createdAt).toLocaleDateString()}
                   </div>
-                </SidebarMenuButton>
+                </div>
+              </SidebarMenuButton>
 
-                {/* DROPDOWN TRIGGER */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground       hover:bg-muted hover:text-foreground opacity-0 group-hover/item:opacity-100 group-data-[collapsible=icon]:hidden"
-                    >
-                      <Ellipsis className="h-4 w-4" />
-                    </button>
-                  </DropdownMenuTrigger>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground opacity-0 group-hover/item:opacity-100 group-data-[collapsible=icon]:hidden"
+                  >
+                    <Ellipsis className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
 
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Rename</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-500">
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            ))
-          )}
-        </SidebarMenu>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>Rename</DropdownMenuItem>
+
+                  <DropdownMenuItem className="text-red-500">
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          ))
+        )}
       </SidebarContent>
 
       {/* Footer */}
