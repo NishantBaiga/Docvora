@@ -3,8 +3,10 @@
 import { db } from "@/lib/db";
 import { utapi } from "@/lib/uploadThing";
 import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export async function deleteDocument(fileId: string) {
+
+export async function DeleteDocument(fileId: string) {
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
@@ -28,4 +30,6 @@ export async function deleteDocument(fileId: string) {
   await db.file.delete({
     where: { id: fileId },
   });
+  
+  return new NextResponse(null, { status: 204 });
 }

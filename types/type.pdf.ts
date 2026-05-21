@@ -1,11 +1,15 @@
-export interface PdfFile {
+import type { UploadStatus as FileStatus } from "../lib/generated/prisma/client";
+
+export interface FileRecord {
   id: string;
   name: string;
+  size: number;  
   createdAt: string;
+  uploadStatus: FileStatus;
 }
 
 export interface GetPdfsResponse {
-  pdfs: PdfFile[];
+  pdfs: FileRecord[];
   pagination: {
     currentPage: number;
     pageSize: number;
