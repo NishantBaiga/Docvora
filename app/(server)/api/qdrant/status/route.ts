@@ -1,5 +1,3 @@
-// import { qdrant } from "@/lib/qdrant";
-
 import { qdrant } from "@/lib/qdrant/qdrant";
 
 export async function GET() {

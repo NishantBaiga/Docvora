@@ -1,6 +1,8 @@
+// lib/qdrant/qdrant.ts
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { config } from "@/lib/config";
 
 export const qdrant = new QdrantClient({
-  url: process.env.QDRANT_URL!,
-  apiKey: process.env.QDRANT_API_KEY,
+  url: config.qdrant.url,
+  apiKey: config.qdrant.apiKey,
 });

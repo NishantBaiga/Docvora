@@ -29,7 +29,7 @@ export const ourFileRouter = {
           size: file.size,
           key: file.key,
           url: file.ufsUrl,
-          uploadStatus: "SUCCESS",
+          uploadStatus: "PENDING",
         },
       });
 

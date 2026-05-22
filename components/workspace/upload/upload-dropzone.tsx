@@ -15,21 +15,58 @@ interface Props {
   onSuccess?: () => void;
 }
 
+type UploadStage =
+  | "idle" // nothing happening
+  | "uploading" // file going to UploadThing
+  | "processing" // workspace/init running (chunking + embedding)
+  | "done"; // redirecting
+
 export default function UploadDropzone({ onSuccess }: Props) {
   const router = useRouter();
-//   const qc = useQueryClient();
+  //   const qc = useQueryClient();
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  const [stage, setStage] = useState<UploadStage>("idle");
+
   const { startUpload, isUploading } = useUploadThing("pdfUploader", {
     onUploadProgress: setProgress,
-    onClientUploadComplete: (res) => {
+    onClientUploadComplete: async (res) => {
       const fileId = res?.[0]?.serverData?.fileId;
-      if (!fileId) return;
-    //   qc.invalidateQueries({ queryKey: ["files"] });
-      onSuccess?.();
-      router.push(`/workspace/${fileId}`);
+      // if (!fileId) return;
+      //   qc.invalidateQueries({ queryKey: ["files"] });
+
+      if (!fileId) {
+        setError("Upload finished but no file ID returned.");
+        setStage("idle");
+        return;
+      }
+
+      setStage("processing");
+      try {
+        const initRes = await fetch("/api/workspace/init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fileId }),
+        });
+
+        if (!initRes.ok) {
+          const msg = await initRes.text();
+          throw new Error(msg || "Workspace init failed");
+        }
+
+        setStage("done");
+        onSuccess?.();
+        router.push(`/workspace/${fileId}`);
+      } catch (error) {
+        console.error("workspace init failed:", error);
+        setError("PDF was uploaded but processing failed. Please try again.");
+        setStage("idle");
+      }
+
+      // onSuccess?.();
+      // router.push(`/workspace/${fileId}`);
     },
     onUploadError: (err) => setError(err.message),
   });
@@ -37,6 +74,7 @@ export default function UploadDropzone({ onSuccess }: Props) {
   const onDrop = useCallback((accepted: File[]) => {
     setFile(accepted[0] ?? null);
     setError(null);
+    setStage("idle");
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -62,7 +100,7 @@ export default function UploadDropzone({ onSuccess }: Props) {
           isDragActive
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30",
-          isUploading && "pointer-events-none opacity-60"
+          isUploading && "pointer-events-none opacity-60",
         )}
       >
         <input {...getInputProps()} />
@@ -72,7 +110,9 @@ export default function UploadDropzone({ onSuccess }: Props) {
               <div className="p-3 bg-primary/10 rounded-full">
                 <FileIcon className="h-6 w-6 text-primary" />
               </div>
-              <p className="text-sm font-medium truncate max-w-[220px]">{file.name}</p>
+              <p className="text-sm font-medium truncate max-w-[220px]">
+                {file.name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {(file.size / 1024 / 1024).toFixed(1)} MB
               </p>
@@ -83,8 +123,10 @@ export default function UploadDropzone({ onSuccess }: Props) {
                 <FileUp className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-sm">
-                <span className="font-medium text-primary">Click to upload</span>
-                {" "}or drag and drop
+                <span className="font-medium text-primary">
+                  Click to upload
+                </span>{" "}
+                or drag and drop
               </p>
               <p className="text-xs text-muted-foreground">PDF up to 32 MB</p>
             </>
@@ -101,9 +143,7 @@ export default function UploadDropzone({ onSuccess }: Props) {
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-destructive text-center">{error}</p>
-      )}
+      {error && <p className="text-xs text-destructive text-center">{error}</p>}
 
       {file && !isUploading && (
         <div className="flex gap-2">
