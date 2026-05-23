@@ -76,7 +76,7 @@ export default function WorkspaceSidebar({
   const [uploadOpen, setUploadOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const { handleDelete, deletingId } = useDeleteDocument(onRefetch);
+  const { handleDelete, deletingId } = useDeleteDocument(onRefetch, files);
   const router = useRouter();
 
   // Debounce
