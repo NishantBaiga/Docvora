@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {  useState } from "react";
+import { useState } from "react";
 import EmptyState from "@/components/workspace/upload/upload-empty-state";
 import { useFiles } from "@/hooks/use-files";
 import ChatShell from "./chat/chat-shell";
@@ -19,13 +19,10 @@ interface props {
   fileId: string | null;
 }
 export default function WorkspaceLayout({ fileId }: props) {
-  
-
   const { pdfUrl, loadingPdf } = usePdf(fileId);
-  const {files , loadingFiles} = useFiles();
+  const { files, loadingFiles, refetch } = useFiles();
 
   const [activeTab, setActiveTab] = useState("chat");
-
 
   const hasFiles = pdfUrl !== null;
   const showEmptyState = !fileId && !hasFiles;
@@ -39,6 +36,7 @@ export default function WorkspaceLayout({ fileId }: props) {
           fileId={fileId}
           files={files}
           loadingFiles={loadingFiles}
+          onRefetch={refetch}
         />
 
         {/* Main Content */}
@@ -67,17 +65,7 @@ export default function WorkspaceLayout({ fileId }: props) {
 
           {/* Tabs Content */}
           <TabsContent value="chat" className="flex-1 m-0">
-            {/* <ChatSection
-              fileId={fileId}
-              summary={summary}
-              loading={loading || loadingMessages}
-              messages={messages}
-              sending={sending}
-              input={input}
-              setInput={setInput}
-              sendMessage={() => sendMessage(input)}
-              isMobile
-            /> */}
+            <ChatShell fileId={fileId} />
           </TabsContent>
 
           <TabsContent value="preview" className="flex-1 m-0">
@@ -101,7 +89,12 @@ export default function WorkspaceLayout({ fileId }: props) {
       {/* ================= DESKTOP VIEW (UNCHANGED) ================= */}
       <div className="hidden lg:flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-900">
         {/* Sidebar */}
-        <WorkspaceSidebar fileId={fileId} files={files} loadingFiles={ loadingFiles} />
+        <WorkspaceSidebar
+          fileId={fileId}
+          files={files}
+          loadingFiles={loadingFiles}
+          onRefetch={refetch}
+        />
 
         {/* Main Content */}
         <main className="flex-1 ">
@@ -135,6 +128,5 @@ export default function WorkspaceLayout({ fileId }: props) {
     </>
   );
 }
-
 
 // sidebar provider ko layout se WorkspaceLayout me use karna hai

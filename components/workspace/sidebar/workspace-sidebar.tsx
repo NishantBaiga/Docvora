@@ -42,6 +42,7 @@ interface WorkspaceSidebarProps {
   files: FileRecord[];
   loadingFiles: boolean;
   onNavigate?: () => void;
+  onRefetch?: () => void;
 }
 
 type Group = { label: string; files: FileRecord[] };
@@ -70,11 +71,12 @@ export default function WorkspaceSidebar({
   files,
   loadingFiles,
   onNavigate,
+  onRefetch,
 }: WorkspaceSidebarProps) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const { handleDelete, deletingId } = useDeleteDocument();
+  const { handleDelete, deletingId } = useDeleteDocument(onRefetch);
   const router = useRouter();
 
   // Debounce
@@ -199,7 +201,7 @@ export default function WorkspaceSidebar({
                       isActive={fileId === file.id}
                       isDeleting={deletingId === file.id}
                       onSelect={() => navigate(file.id)}
-                      onDelete={() => handleDelete(file.id)}
+                      onDelete={() => handleDelete(file.id, fileId ?? undefined)}
                     />
                   ))}
                 </SidebarMenu>
