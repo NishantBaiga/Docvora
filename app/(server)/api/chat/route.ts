@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { genAI } from "@/lib/gemini";
 import { embedSingleText } from "@/lib/gemini";
+import { buildChatPrompt } from "@/lib/prompts/chat-prompts";
 
 /* -------------------- GET — fetch messages -------------------- */
 
@@ -44,7 +45,8 @@ export async function POST(req: Request) {
     // Verify file belongs to this user
     const file = await db.file.findUnique({ where: { id: fileId } });
     if (!file) return new NextResponse("File not found", { status: 404 });
-    if (file.userId !== userId) return new NextResponse("Forbidden", { status: 403 });
+    if (file.userId !== userId)
+      return new NextResponse("Forbidden", { status: 403 });
 
     // Save user message
     await db.message.create({
@@ -69,44 +71,52 @@ export async function POST(req: Request) {
 
     const context = contextChunks.join("\n\n");
 
-    // Ask Gemini
-    const response = await genAI.models.generateContent({
+    // Build prompt from separate file
+    const prompt = buildChatPrompt({ context, question });
+
+    // Start Gemini stream
+    const geminiStream = await genAI.models.generateContentStream({
       model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
-          parts: [
-            {
-              text: `
-You are a strict PDF question-answering assistant.
-Use ONLY the information from the context below.
-If the answer is not explicitly present, say:
-"The PDF does not contain this information."
-
-Context:
-${context}
-
-Question:
-${question}
-
-Answer concisely and accurately.
-              `.trim(),
-            },
-          ],
+          parts: [{ text: prompt }],
         },
       ],
     });
 
-    const answer = response.text ?? "No answer generated.";
+    let fullAnswer = "";
 
-    // Save assistant message
-    await db.message.create({
-      data: { text: answer, isUserMessage: false, fileId, userId },
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of geminiStream) {
+            const text = chunk.text ?? "";
+            if (text) {
+              fullAnswer += text;
+              controller.enqueue(new TextEncoder().encode(text));
+            }
+          }
+
+          // Save complete answer after stream finishes
+          await db.message.create({
+            data: { text: fullAnswer, isUserMessage: false, fileId, userId },
+          });
+        } catch (err) {
+          console.error("Stream error:", err);
+        } finally {
+          controller.close();
+        }
+      },
     });
-
-    console.log("Generated answer:", answer);
-    return NextResponse.json({ answer });
-
+    
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   } catch (error) {
     console.log("Qdrant error data:", JSON.stringify(error, null, 2));
     console.error("CHAT ERROR:", error);

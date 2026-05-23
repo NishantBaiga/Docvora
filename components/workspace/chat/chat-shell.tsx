@@ -26,6 +26,9 @@ export default function ChatShell({ fileId }: Props) {
     isLoading,
     loadingMessages,
     sendMessage,
+    isStreaming,
+    stop,
+    sendWithText,
   } = useMessages(fileId);
 
   useEffect(() => {
@@ -49,21 +52,27 @@ export default function ChatShell({ fileId }: Props) {
         {loadingMessages ? (
           <MessageSkeletons />
         ) : messages.length === 0 ? (
-          <ChatWelcome />
+          <ChatWelcome onSuggestionClick={sendWithText} />
         ) : (
           messages.map((m, i) => {
-            // The last message is the assistant placeholder while loading
+            const isLast = i === messages.length - 1;
+            const isAssistant = m.role === "assistant";
+            // Show thinking dots only while waiting for first chunk
             const isThinking =
               isLoading &&
-              i === messages.length - 1 &&
-              m.role === "assistant" &&
+              !isStreaming &&
+              isLast &&
+              isAssistant &&
               m.content === "";
 
+            // Show blinking cursor while chunks are arriving
+            const isCurrentlyStreaming = isStreaming && isLast && isAssistant;
             return (
               <ChatMessage
                 key={m.id}
                 message={m}
                 isThinking={isThinking}
+                isStreaming={isCurrentlyStreaming}
               />
             );
           })
@@ -84,7 +93,9 @@ export default function ChatShell({ fileId }: Props) {
               size="sm"
               variant="secondary"
               className="rounded-full shadow-md gap-1.5 text-xs h-7"
-              onClick={() => bottomRef.current?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() =>
+                bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+              }
             >
               <ArrowDown className="h-3 w-3" />
               Scroll to bottom
@@ -100,6 +111,8 @@ export default function ChatShell({ fileId }: Props) {
         onSubmit={sendMessage}
         isLoading={isLoading}
         disabled={!fileId}
+        isStreaming={isStreaming}
+        onStop={stop}
       />
     </div>
   );
@@ -112,8 +125,14 @@ function MessageSkeletons() {
         <div key={i} className="flex gap-3">
           <div className="h-7 w-7 rounded-full bg-muted animate-pulse shrink-0" />
           <div className="space-y-1.5 flex-1">
-            <div className="h-4 rounded bg-muted animate-pulse" style={{ width: `${w}%` }} />
-            <div className="h-4 rounded bg-muted animate-pulse" style={{ width: `${w - 20}%` }} />
+            <div
+              className="h-4 rounded bg-muted animate-pulse"
+              style={{ width: `${w}%` }}
+            />
+            <div
+              className="h-4 rounded bg-muted animate-pulse"
+              style={{ width: `${w - 20}%` }}
+            />
           </div>
         </div>
       ))}

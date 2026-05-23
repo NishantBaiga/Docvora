@@ -12,9 +12,10 @@ import type { Message } from "@/hooks/use-messages";
 interface Props {
   message: Message;
   isThinking?: boolean; // placeholder while Gemini is working
+  isStreaming?: boolean;
 }
 
-export default function ChatMessage({ message, isThinking }: Props) {
+export default function ChatMessage({ message, isThinking, isStreaming }: Props) {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === "user";
 
@@ -44,14 +45,12 @@ export default function ChatMessage({ message, isThinking }: Props) {
       <div
         className={cn("flex flex-col max-w-[85%] gap-1", isUser && "items-end")}
       >
-        <div
-          className={cn(
-            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-            isUser
-              ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-muted text-foreground rounded-tl-sm",
-          )}
-        >
+          <div className={cn(
+          "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+          isUser
+            ? "bg-primary text-primary-foreground rounded-tr-sm"
+            : "bg-muted text-foreground rounded-tl-sm"
+        )}>
           {isThinking ? (
             <ThinkingDots />
           ) : isUser ? (
@@ -61,12 +60,16 @@ export default function ChatMessage({ message, isThinking }: Props) {
               <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
                 {message.content}
               </ReactMarkdown>
+              {/* Blinking cursor while streaming */}
+              {isStreaming && (
+                <span className="inline-block w-0.5 h-3.5 bg-foreground/70 ml-0.5 align-text-bottom animate-[blink_1s_step-end_infinite]" />
+              )}
             </div>
           )}
         </div>
 
-        {/* Copy — assistant only, when not thinking */}
-        {!isUser && !isThinking && message.content && (
+        {/* Copy — assistant only, not while thinking or streaming */}
+        {!isUser && !isThinking && !isStreaming && message.content && (
           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
@@ -74,15 +77,18 @@ export default function ChatMessage({ message, isThinking }: Props) {
               className="h-6 w-6 rounded-md"
               onClick={copy}
             >
-              {copied ? (
-                <Check className="h-3 w-3 text-green-500" />
-              ) : (
-                <Copy className="h-3 w-3 text-muted-foreground" />
-              )}
+              {copied
+                ? <Check className="h-3 w-3 text-green-500" />
+                : <Copy className="h-3 w-3 text-muted-foreground" />
+              }
             </Button>
           </div>
         )}
       </div>
+
+
+
+
     </div>
   );
 }

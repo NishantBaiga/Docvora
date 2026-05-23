@@ -1,9 +1,5 @@
 "use client";
-
-import { useWorkspace } from "@/hooks/use-workspace";
-import { useMessages } from "@/hooks/use-messages";
 import { usePdf } from "@/hooks/use-file";
-import ChatSection from "@/components/workspace/chat/chat-section";
 import WorkspaceSidebar from "@/components/workspace/sidebar/workspace-sidebar";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -24,15 +20,10 @@ interface props {
 }
 export default function WorkspaceLayout({ fileId }: props) {
   
-  // const { summary, loading } = useWorkspace(fileId);
-  // const { messages, sending, loadingMessages, sendMessage } =
-  //   useMessages(fileId);
 
-
-  const { pdfUrl, loadingPdf, downloadPdf } = usePdf(fileId);
+  const { pdfUrl, loadingPdf } = usePdf(fileId);
   const {files , loadingFiles} = useFiles();
 
-  const [input, setInput] = useState("");
   const [activeTab, setActiveTab] = useState("chat");
 
 
@@ -135,16 +126,6 @@ export default function WorkspaceLayout({ fileId }: props) {
               <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize={55} minSize={10}>
-                {/* <ChatSection
-                  fileId={fileId}
-                  summary={summary}
-                  loading={loading || loadingMessages}
-                  messages={messages}
-                  sending={sending}
-                  input={input}
-                  setInput={setInput}
-                  sendMessage={() => sendMessage(input)}
-                /> */}
                 <ChatShell fileId={fileId} />
               </ResizablePanel>
             </ResizablePanelGroup>

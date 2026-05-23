@@ -1,7 +1,7 @@
 // components/workspace/chat/chat-input.tsx
 "use client";
 
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -11,6 +11,8 @@ interface Props {
   onSubmit: () => void;
   isLoading: boolean;
   disabled: boolean;
+  isStreaming: boolean;
+  onStop: () => void;
 }
 
 export default function ChatInput({
@@ -19,6 +21,8 @@ export default function ChatInput({
   onSubmit,
   isLoading,
   disabled,
+  isStreaming,
+  onStop, 
 }: Props) {
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
@@ -46,18 +50,36 @@ export default function ChatInput({
                      placeholder:text-muted-foreground/50 transition-colors"
         />
 
-        <Button
-          type="button"
-          size="icon"
-          className="h-10 w-10 shrink-0 rounded-xl"
-          disabled={!input.trim() || disabled || isLoading}
-          onClick={onSubmit}
-        >
-          {isLoading
-            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            : <Send className="h-3.5 w-3.5" />
-          }
-        </Button>
+
+
+
+
+        {isStreaming ? (
+          // Stop button while streaming
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="h-10 w-10 shrink-0 rounded-xl"
+            onClick={onStop}
+          >
+            <Square className="h-3.5 w-3.5 fill-current" />
+          </Button>
+        ) : (
+          // Send button
+          <Button
+            type="button"
+            size="icon"
+            className="h-10 w-10 shrink-0 rounded-xl"
+            disabled={!input.trim() || disabled || isLoading}
+            onClick={onSubmit}
+          >
+            {isLoading && !isStreaming
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <Send className="h-3.5 w-3.5" />
+            }
+          </Button>
+        )}
       </div>
 
       <p className="text-[10px] text-muted-foreground text-center mt-1.5">
