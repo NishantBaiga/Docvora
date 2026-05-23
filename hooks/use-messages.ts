@@ -1,91 +1,110 @@
+// hooks/use-messages.ts
 "use client";
 
 import { useEffect, useState } from "react";
 
 export type Message = {
+  id: string;
   role: "user" | "assistant";
   content: string;
 };
 
-export function useMessages(fileId: string | undefined) {
+export function useMessages(fileId: string | null) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [sending, setSending] = useState<boolean>(false);
-  const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
-  // Load messages
+  // Reset + reload whenever fileId changes
   useEffect(() => {
-    if (!fileId) return;
+    if (!fileId) {
+      setMessages([]);
+      return;
+    }
 
-    async function loadMessages() {
+    async function load() {
+      setLoadingMessages(true);
+      setMessages([]);
       try {
-        setLoadingMessages(true);
-        setError(null);
-
-        const res = await fetch(`/api/messages?fileId=${fileId}`);
-        if (!res.ok) throw new Error("Failed to load messages");
+        // Same endpoint, GET method
+        const res = await fetch(`/api/chat?fileId=${fileId}`);
+        if (!res.ok) return;
 
         const data = await res.json();
         setMessages(
-          data.map((m: any) => ({
+          data.map((m: { id: string; text: string; isUserMessage: boolean }) => ({
+            id: m.id,
             role: m.isUserMessage ? "user" : "assistant",
             content: m.text,
           }))
         );
-      } catch (err) {
-        console.error(err);
-        setError("Unable to load messages");
       } finally {
         setLoadingMessages(false);
       }
     }
 
-    loadMessages();
+    load();
   }, [fileId]);
 
-  // Send message
-  async function sendMessage(question: string) {
-    if (!question.trim() || !fileId) return;
+  async function sendMessage() {
+    const question = input.trim();
+    if (!question || !fileId || isLoading) return;
 
-    setSending(true);
+    setInput("");
+    setIsLoading(true);
 
-    // Optimistic update
-    setMessages((prev) => [...prev, { role: "user", content: question }]);
+    const optimisticUser: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: question,
+    };
+
+    const placeholderId = crypto.randomUUID();
+    const placeholder: Message = {
+      id: placeholderId,
+      role: "assistant",
+      content: "",
+    };
+
+    setMessages(prev => [...prev, optimisticUser, placeholder]);
 
     try {
+      // Same endpoint, POST method
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileId, question }),
       });
 
-      if (!res.ok) throw new Error("Chat failed");
+      if (!res.ok) throw new Error("Chat request failed");
 
       const data = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.answer || "No answer." },
-      ]);
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again.",
-        },
-      ]);
+      const answer: string = data.answer ?? "No answer generated.";
+
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === placeholderId ? { ...m, content: answer } : m
+        )
+      );
+    } catch {
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === placeholderId
+            ? { ...m, content: "Something went wrong. Please try again." }
+            : m
+        )
+      );
     } finally {
-      setSending(false);
+      setIsLoading(false);
     }
   }
 
   return {
     messages,
-    sending,
+    input,
+    setInput,
+    isLoading,
     loadingMessages,
-    error,
     sendMessage,
-    setMessages, // optional escape hatch
   };
 }
