@@ -1,4 +1,4 @@
-# AI Chat Application 🚀
+# AI Powerd PDF Q&A  Application 🚀
 
 A modern, production-ready **AI Chat Application** built with **Next.js** that supports intelligent conversations using **LLMs**, secure authentication, vector search, and scalable backend infrastructure.
 
