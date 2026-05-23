@@ -2,7 +2,6 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-// import { prisma } from "@/lib/prisma";
 
 export async function updateDocumentName(
   fileId: string,
