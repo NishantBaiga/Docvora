@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Menu,
-  Search,
-  Plus,
-} from "lucide-react";
+import { Menu, Search, Plus } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -194,7 +190,9 @@ export default function WorkspaceSidebar({
                       isActive={fileId === file.id}
                       isDeleting={deletingId === file.id}
                       onSelect={() => navigate(file.id)}
-                      onDelete={() => handleDelete(file.id, fileId ?? undefined)}
+                      onDelete={() =>
+                        handleDelete(file.id, fileId ?? undefined)
+                      }
                     />
                   ))}
                 </SidebarMenu>
@@ -206,20 +204,9 @@ export default function WorkspaceSidebar({
 
       {/* Footer */}
       <SidebarFooter className="px-3 py-3 border-t">
-        <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <UserButton />
-          <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-sm font-medium">{displayName}</span>
-          </div>
-        </div>
+        <SidebarFooterUser />
       </SidebarFooter>
-
-      <SidebarFooter className="px-3 py-3 border-t">
-  <SidebarFooterUser />
-</SidebarFooter>
       <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen} />
     </Sidebar>
   );
 }
-
-
