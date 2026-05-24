@@ -59,29 +59,6 @@ export function useMessages(fileId: string | null) {
       setPagination(null);
       return;
     }
-
-
-    
-
-      // Load older messages — called when user scrolls to top
-  const loadMore = useCallback(async () => {
-    if (!fileId || !pagination?.hasMore || loadingMore) return;
-
-    setLoadingMore(true);
-    try {
-      const nextPage = pagination.page + 1;
-      const result = await fetchMessages(nextPage);
-      if (!result) return;
-
-      // Prepend older messages to existing ones
-      setMessages(prev => [...result.messages, ...prev]);
-      setPagination(result.pagination);
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [fileId, pagination, loadingMore]);
-
-
     async function load() {
       setLoadingMessages(true);
       setMessages([]);
@@ -99,8 +76,7 @@ export function useMessages(fileId: string | null) {
     load();
   }, [fileId]);
 
-
-   // Load older messages — called when user scrolls to top
+  // Load older messages — called when user scrolls to top
   const loadMore = useCallback(async () => {
     if (!fileId || !pagination?.hasMore || loadingMore) return;
 
@@ -111,7 +87,7 @@ export function useMessages(fileId: string | null) {
       if (!result) return;
 
       // Prepend older messages to existing ones
-      setMessages(prev => [...result.messages, ...prev]);
+      setMessages((prev) => [...result.messages, ...prev]);
       setPagination(result.pagination);
     } finally {
       setLoadingMore(false);
