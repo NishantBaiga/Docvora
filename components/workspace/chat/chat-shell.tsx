@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/hooks/use-messages";
 import ChatMessage from "./chat-message";
@@ -18,27 +18,66 @@ export default function ChatShell({ fileId }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const prevScrollHeightRef = useRef<number>(0);
 
   const {
     messages,
     input,
     setInput,
     isLoading,
-    loadingMessages,
-    sendMessage,
     isStreaming,
-    stop,
+    loadingMessages,
+    loadingMore,
+    pagination,
+    loadMore,
+    sendMessage,
     sendWithText,
+    stop,
   } = useMessages(fileId);
 
+  // Auto scroll to bottom on initial load and new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Scroll to bottom only when a new message is added at the end
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    // Only auto scroll if user is near the bottom
+    if (distFromBottom < 200) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length]);
+
+  // Preserve scroll position after prepending older messages
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !loadingMore) return;
+    prevScrollHeightRef.current = el.scrollHeight;
+  }, [loadingMore]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || loadingMore) return;
+    // After older messages prepended restore scroll position
+    if (prevScrollHeightRef.current) {
+      el.scrollTop = el.scrollHeight - prevScrollHeightRef.current;
+      prevScrollHeightRef.current = 0;
+    }
+  }, [messages, loadingMore]);
+
   function handleScroll() {
     const el = containerRef.current;
     if (!el) return;
-    setShowScrollBtn(el.scrollHeight - el.scrollTop - el.clientHeight > 120);
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollBtn(distFromBottom > 200);
+
+    // Load more when user scrolls near top
+    if (el.scrollTop < 80 && pagination?.hasMore && !loadingMore) {
+      loadMore();
+    }
   }
 
   return (
@@ -49,6 +88,26 @@ export default function ChatShell({ fileId }: Props) {
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
       >
+        {/* Load more indicator at top */}
+        {loadingMore && (
+          <div className="flex justify-center py-2">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        )}
+        {/* Load more button fallback */}
+        {!loadingMore && pagination?.hasMore && (
+          <div className="flex justify-center py-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground h-7"
+              onClick={loadMore}
+            >
+              Load older messages
+            </Button>
+          </div>
+        )}
+
         {loadingMessages ? (
           <MessageSkeletons />
         ) : messages.length === 0 ? (
@@ -57,7 +116,7 @@ export default function ChatShell({ fileId }: Props) {
           messages.map((m, i) => {
             const isLast = i === messages.length - 1;
             const isAssistant = m.role === "assistant";
-            // Show thinking dots only while waiting for first chunk
+
             const isThinking =
               isLoading &&
               !isStreaming &&
@@ -65,8 +124,8 @@ export default function ChatShell({ fileId }: Props) {
               isAssistant &&
               m.content === "";
 
-            // Show blinking cursor while chunks are arriving
             const isCurrentlyStreaming = isStreaming && isLast && isAssistant;
+
             return (
               <ChatMessage
                 key={m.id}

@@ -70,11 +70,11 @@ export default function ChatMessage({ message, isThinking, isStreaming }: Props)
 
         {/* Copy — assistant only, not while thinking or streaming */}
         {!isUser && !isThinking && !isStreaming && message.content && (
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity ">
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md"
+              className="h-6 w-6 rounded-md cursor-pointer"
               onClick={copy}
             >
               {copied
@@ -85,8 +85,6 @@ export default function ChatMessage({ message, isThinking, isStreaming }: Props)
           </div>
         )}
       </div>
-
-
 
 
     </div>

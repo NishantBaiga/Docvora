@@ -9,6 +9,7 @@ import { buildChatPrompt } from "@/lib/prompts/chat-prompts";
 
 /* -------------------- GET — fetch messages -------------------- */
 
+const MESSAGE_PAGE_SIZE = 20;
 export async function GET(req: Request) {
   try {
     const { userId } = await auth();
@@ -18,12 +19,32 @@ export async function GET(req: Request) {
     const fileId = searchParams.get("fileId");
     if (!fileId) return new NextResponse("fileId is required", { status: 400 });
 
-    const messages = await db.message.findMany({
+    const page = Math.max(Number(searchParams.get("page") ?? "1"), 1);
+
+    const totalCount = await db.message.count({
       where: { fileId, userId },
-      orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json(messages);
+    const totalPages = Math.ceil(totalCount / MESSAGE_PAGE_SIZE);
+
+    // Fetch newest first from DB so we get the right page
+    // then reverse so oldest shows at top in UI
+    const messages = await db.message.findMany({
+      where: { fileId, userId },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * MESSAGE_PAGE_SIZE,
+      take: MESSAGE_PAGE_SIZE,
+    });
+
+    return NextResponse.json({
+      messages: messages.reverse(),
+      pagination: {
+        page,
+        totalPages,
+        totalCount,
+        hasMore: page < totalPages,
+      },
+    });
   } catch (error) {
     console.error("GET MESSAGES ERROR:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
@@ -109,7 +130,7 @@ export async function POST(req: Request) {
         }
       },
     });
-    
+
     return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
