@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useDeleteDocument } from "@/hooks/useDeleteFile";
 import { FileItem } from "./file-item";
 import SidebarFooterUser from "./sidebar-footer";
+import SearchDialog from "./search-dialog";
 
 interface WorkspaceSidebarProps {
   fileId: string | null;
@@ -59,37 +60,26 @@ export default function WorkspaceSidebar({
   onNavigate,
   onRefetch,
 }: WorkspaceSidebarProps) {
-  const [uploadOpen, setUploadOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const { handleDelete, deletingId } = useDeleteDocument(onRefetch, files);
   const router = useRouter();
-  const { user } = useUser();
-  const displayName =
-    user?.fullName || user?.username || user?.firstName || "Signed in";
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { handleDelete, deletingId } = useDeleteDocument(onRefetch, files);
 
-  // Debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  // Filter
-  const filteredFiles = useMemo(() => {
-    if (!debouncedSearch.trim()) return files;
-    return files.filter((file) =>
-      file.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
-    );
-  }, [files, debouncedSearch]);
 
   // Group
-  const groups = useMemo(
-    () => groupFiles(filteredFiles ?? []),
-    [filteredFiles],
-  );
+ const groups = useMemo(() => groupFiles(files ?? []), [files]);
+
+
+  useEffect(() => {
+  function handleKeyDown(e: KeyboardEvent) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      setSearchOpen(true);
+    }
+  }
+  document.addEventListener("keydown", handleKeyDown);
+  return () => document.removeEventListener("keydown", handleKeyDown);
+}, []);
 
   // Navigate
   function navigate(id: string) {
@@ -97,8 +87,6 @@ export default function WorkspaceSidebar({
     onNavigate?.();
   }
 
-  console.log(search);
-  console.log("filteredFiles in sidebar component", files);
   return (
     <Sidebar collapsible="icon">
       <div className="p-4 border-b">
@@ -137,12 +125,22 @@ export default function WorkspaceSidebar({
         {/* Search */}
         <div className="relative group-data-[state=collapsed]:hidden">
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            placeholder="Search PDFs…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-8 pl-8 text-xs bg-muted/50 border-0 focus-visible:ring-1"
-          />
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-2 w-full h-8 px-2.5 rounded-md
+             bg-muted/50 hover:bg-muted text-muted-foreground
+             text-xs transition-colors group-data-[collapsible=icon]:hidden"
+          >
+            <Search className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-xs">Search PDFs…</span>
+            <kbd
+              className="ml-auto text-[10px] px-1 py-0.5 rounded bg-background
+                  border font-mono hidden sm:inline-block"
+            >
+              ⌘ K
+            </kbd>
+          </button>
         </div>
       </SidebarHeader>
 
@@ -168,7 +166,7 @@ export default function WorkspaceSidebar({
           </div>
         ) : files?.length === 0 ? (
           <div className="p-4 text-center text-sm text-gray-500">
-            {search ? "No PDFs found" : "No PDFs uploaded yet"}
+            {"No PDFs uploaded yet"}
           </div>
         ) : (
           <AnimatePresence initial={false}>
@@ -207,6 +205,12 @@ export default function WorkspaceSidebar({
         <SidebarFooterUser />
       </SidebarFooter>
       <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen} />
+
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onNavigate={onNavigate}
+      />
     </Sidebar>
   );
 }
