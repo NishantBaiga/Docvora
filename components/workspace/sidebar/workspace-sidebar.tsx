@@ -1,15 +1,11 @@
 "use client";
 
 import {
-  FileText,
-  Ellipsis,
   Menu,
   Search,
   Plus,
-  Loader2,
-  Trash2,
 } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import {
   Sidebar,
@@ -17,26 +13,19 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarGroup,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import UploadSheet from "../upload/upload-sheet";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatDistanceToNow, isToday, isThisWeek } from "date-fns";
+import { isToday, isThisWeek } from "date-fns";
 import { FileRecord } from "@/types/type.pdf";
 import { useRouter } from "next/navigation";
 import { useDeleteDocument } from "@/hooks/useDeleteFile";
 import { FileItem } from "./file-item";
+import SidebarFooterUser from "./sidebar-footer";
 
 interface WorkspaceSidebarProps {
   fileId: string | null;
@@ -79,6 +68,9 @@ export default function WorkspaceSidebar({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const { handleDelete, deletingId } = useDeleteDocument(onRefetch, files);
   const router = useRouter();
+  const { user } = useUser();
+  const displayName =
+    user?.fullName || user?.username || user?.firstName || "Signed in";
 
   // Debounce
   useEffect(() => {
@@ -216,14 +208,15 @@ export default function WorkspaceSidebar({
       <SidebarFooter className="px-3 py-3 border-t">
         <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
           <UserButton />
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium">nishant</span>
-            <span className="text-xs text-muted-foreground">
-              nishantbaiga@gmail.com
-            </span>
+          <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+            <span className="truncate text-sm font-medium">{displayName}</span>
           </div>
         </div>
       </SidebarFooter>
+
+      <SidebarFooter className="px-3 py-3 border-t">
+  <SidebarFooterUser />
+</SidebarFooter>
       <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen} />
     </Sidebar>
   );
