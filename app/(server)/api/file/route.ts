@@ -1,13 +1,18 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { withErrorHandler } from "@/lib/api-handler";
+import { Errors } from "@/lib/errors";
+import { GetFileQuerySchema } from "@/lib/schemas/api-schemas";
 
-export async function GET(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+export const GET = withErrorHandler(async (req: Request) => {
+const { userId } = await auth();
+    if (!userId) throw Errors.unauthorized();
 
   const { searchParams } = new URL(req.url);
-  const fileId = searchParams.get("fileId");
+  const { fileId } = GetFileQuerySchema.parse({
+    fileId: searchParams.get("fileId"),
+  });
 
   if (!fileId) return new NextResponse("fileId required", { status: 400 });
 
@@ -22,8 +27,6 @@ export async function GET(req: Request) {
       uploadStatus: true,
     },
   });
-
-  if (!file) return new NextResponse("File not found", { status: 404 });
-
+  if (!file) throw Errors.notFound("File");
   return NextResponse.json(file);
-}
+});

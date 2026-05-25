@@ -2,28 +2,31 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { Errors } from "@/lib/errors";
+import { z } from "zod";
+import { UpdateDocumentNameSchema } from "@/lib/schemas/api-schemas";
+
+
 
 export async function updateDocumentName(
   fileId: string,
   newName: string
-) {
+): Promise<void> {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) throw Errors.unauthorized();
 
-  if (!newName.trim()) {
-    throw new Error("File name cannot be empty");
-  }
+  const { fileId: validatedFileId, newName: validatedName } =
+    UpdateDocumentNameSchema.parse({ fileId, newName });
 
   const doc = await db.file.findUnique({
-    where: { id: fileId },
+    where: { id: validatedFileId },
   });
 
-  if (!doc || doc.userId !== userId) {
-    throw new Error("Forbidden");
-  }
+  if (!doc) throw Errors.notFound("Document");
+  if (doc.userId !== userId) throw Errors.forbidden();
 
   await db.file.update({
-    where: { id: fileId },
-    data: { name: newName },
+    where: { id: validatedFileId },
+    data: { name: validatedName },
   });
 }
