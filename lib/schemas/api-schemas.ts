@@ -27,3 +27,8 @@ export const WorkspaceInitSchema = z.object({
 export const DeleteDocumentSchema = z.object({
   fileId: z.string().min(1, "fileId is required"),
 });
+
+export const UpdateDocumentNameSchema = z.object({
+  fileId: z.string().min(1, "fileId is required"),
+  newName: z.string().min(1, "File name cannot be empty").max(255, "File name too long").trim(),
+});
