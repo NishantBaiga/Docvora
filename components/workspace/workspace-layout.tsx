@@ -14,6 +14,7 @@ import { useState } from "react";
 import EmptyState from "@/components/workspace/upload/upload-empty-state";
 import { useFiles } from "@/hooks/use-files";
 import ChatShell from "./chat/chat-shell";
+import ErrorBoundary from "../common/error-boundary";
 
 interface props {
   fileId: string | null;
@@ -65,23 +66,27 @@ export default function WorkspaceLayout({ fileId }: props) {
 
           {/* Tabs Content */}
           <TabsContent value="chat" className="flex-1 m-0">
-            <ChatShell fileId={fileId} />
+            <ErrorBoundary>
+              <ChatShell fileId={fileId} />
+            </ErrorBoundary>
           </TabsContent>
 
           <TabsContent value="preview" className="flex-1 m-0">
-            <div className="h-full w-full bg-white dark:bg-gray-900">
-              {loadingPdf ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-sm text-gray-500">Loading PDF...</div>
-                </div>
-              ) : pdfUrl ? (
-                <iframe src={pdfUrl} className="w-full h-full border-0" />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-sm text-gray-500">No PDF loaded</div>
-                </div>
-              )}
-            </div>
+            <ErrorBoundary>
+              <div className="h-full w-full bg-white dark:bg-gray-900">
+                {loadingPdf ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-sm text-gray-500">Loading PDF...</div>
+                  </div>
+                ) : pdfUrl ? (
+                  <iframe src={pdfUrl} className="w-full h-full border-0" />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-sm text-gray-500">No PDF loaded</div>
+                  </div>
+                )}
+              </div>
+            </ErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>
@@ -103,23 +108,27 @@ export default function WorkspaceLayout({ fileId }: props) {
           ) : (
             <ResizablePanelGroup direction="horizontal" className="h-full">
               <ResizablePanel defaultSize={45} minSize={0}>
-                {/* <div className="h-full p-4 bg-gray-200 dark:bg-gray-800"> */}
-                <div className="h-full p-4  bg-white dark:bg-gray-900 rounded-lg overflow-hidden ">
-                  {loadingPdf ? (
-                    <div className="flex items-center justify-center h-full">
-                      Loading PDF...
-                    </div>
-                  ) : (
-                    pdfUrl && <iframe src={pdfUrl} className="w-full h-full" />
-                  )}
-                </div>
-                {/* </div> */}
+                <ErrorBoundary>
+                  <div className="h-full p-4  bg-white dark:bg-gray-900 rounded-lg overflow-hidden ">
+                    {loadingPdf ? (
+                      <div className="flex items-center justify-center h-full">
+                        Loading PDF...
+                      </div>
+                    ) : (
+                      pdfUrl && (
+                        <iframe src={pdfUrl} className="w-full h-full" />
+                      )
+                    )}
+                  </div>
+                </ErrorBoundary>{" "}
               </ResizablePanel>
 
               <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize={55} minSize={10}>
-                <ChatShell fileId={fileId} />
+                <ErrorBoundary>
+                  <ChatShell fileId={fileId} />
+                </ErrorBoundary>{" "}
               </ResizablePanel>
             </ResizablePanelGroup>
           )}
