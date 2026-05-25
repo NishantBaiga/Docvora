@@ -128,6 +128,16 @@ export function useMessages(fileId: string | null) {
         signal: abortRef.current.signal,
       });
 
+      if (res.status === 429) {
+        const data = await res.json().catch(() => null);
+        const message = data?.error ?? "Too many requests. Please slow down.";
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === placeholderId ? { ...m, content: message } : m,
+          ),
+        );
+        return;
+      }
       if (!res.ok) throw new Error("Chat request failed");
       if (!res.body) throw new Error("No response body");
 
@@ -206,7 +216,16 @@ export function useMessages(fileId: string | null) {
         body: JSON.stringify({ fileId, question }),
         signal: abortRef.current.signal,
       });
-
+      if (res.status === 429) {
+        const data = await res.json().catch(() => null);
+        const message = data?.error ?? "Too many requests. Please slow down.";
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === placeholderId ? { ...m, content: message } : m,
+          ),
+        );
+        return;
+      }
       if (!res.ok) throw new Error("Chat request failed");
       if (!res.body) throw new Error("No response body");
 

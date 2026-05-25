@@ -7,6 +7,7 @@ import { buildChatPrompt } from "@/lib/prompts/chat-prompts";
 import { withErrorHandler } from "@/lib/api-handler";
 import { Errors } from "@/lib/errors";
 import { ChatPostSchema, GetFileQuerySchema } from "@/lib/schemas/api-schemas";
+import { chatRatelimit } from "@/lib/rateLimit";
 
 const MESSAGE_PAGE_SIZE = 20;
 
@@ -49,6 +50,12 @@ export const GET = withErrorHandler(async (req: Request) => {
 export const POST = withErrorHandler(async (req: Request) => {
   const { userId } = await auth();
   if (!userId) throw Errors.unauthorized();
+
+  const { success, reset } = await chatRatelimit.limit(userId);
+  if (!success) {
+    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+    throw Errors.tooManyRequests(retryAfter);
+  }
 
   const body = await req.json();
   const { fileId, question } = ChatPostSchema.parse(body);
@@ -114,6 +121,7 @@ export const POST = withErrorHandler(async (req: Request) => {
       "Content-Type": "text/plain; charset=utf-8",
       "Transfer-Encoding": "chunked",
       "X-Content-Type-Options": "nosniff",
+       "X-RateLimit-Reset": reset.toString(),
     },
   });
 });

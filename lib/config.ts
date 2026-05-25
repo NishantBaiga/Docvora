@@ -20,4 +20,8 @@ export const config = {
   db: {
     url: requireEnv("DATABASE_URL"),
   },
+    upstash: {
+    url: requireEnv("UPSTASH_REDIS_REST_URL"),
+    token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
+  },
 } as const;

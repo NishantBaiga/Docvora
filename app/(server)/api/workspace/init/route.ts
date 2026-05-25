@@ -8,10 +8,17 @@ import { ensureCollection } from "@/lib/qdrant/setup";
 import { withErrorHandler } from "@/lib/api-handler";
 import { Errors } from "@/lib/errors";
 import { WorkspaceInitSchema } from "@/lib/schemas/api-schemas";
+import { initRatelimit } from "@/lib/rateLimit";
 
 export const POST = withErrorHandler(async (req: Request) => {
   const { userId } = await auth();
   if (!userId) throw Errors.unauthorized();
+
+    const { success, reset } = await initRatelimit.limit(userId);
+  if (!success) {
+    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+    throw Errors.tooManyRequests(retryAfter);
+  }
 
   const body = await req.json();
   const { fileId } = WorkspaceInitSchema.parse(body);

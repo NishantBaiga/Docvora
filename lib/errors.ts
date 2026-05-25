@@ -34,4 +34,11 @@ export const Errors = {
   conflict: (message: string) => new AppError(message, 409),
   internal: (message = "Internal server error") =>
     new AppError(message, 500),
+  tooManyRequests: (retryAfter?: number) =>
+    new AppError(
+      retryAfter
+        ? `Too many requests. Try again in ${retryAfter} seconds.`
+        : "Too many requests. Please slow down.",
+      429
+    ),
 };
