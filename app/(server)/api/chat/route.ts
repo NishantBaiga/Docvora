@@ -7,7 +7,7 @@ import { buildChatPrompt } from "@/lib/prompts/chat-prompts";
 import { withErrorHandler } from "@/lib/api-handler";
 import { Errors } from "@/lib/errors";
 import { ChatPostSchema, GetFileQuerySchema } from "@/lib/schemas/api-schemas";
-import { chatRatelimit } from "@/lib/rateLimit";
+import { chatRatelimit } from "@/lib/rate-limit";
 
 const MESSAGE_PAGE_SIZE = 20;
 

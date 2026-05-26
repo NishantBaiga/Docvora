@@ -8,7 +8,7 @@ import { ensureCollection } from "@/lib/qdrant/setup";
 import { withErrorHandler } from "@/lib/api-handler";
 import { Errors } from "@/lib/errors";
 import { WorkspaceInitSchema } from "@/lib/schemas/api-schemas";
-import { initRatelimit } from "@/lib/rateLimit";
+import { initRatelimit } from "@/lib/rate-limit";
 
 export const POST = withErrorHandler(async (req: Request) => {
   const { userId } = await auth();
