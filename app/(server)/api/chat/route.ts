@@ -10,6 +10,7 @@ import { ChatPostSchema, GetFileQuerySchema } from "@/lib/schemas/api-schemas";
 import { chatRatelimit } from "@/lib/rate-limit";
 
 const MESSAGE_PAGE_SIZE = 20;
+const HISTORY_LIMIT = 10;
 
 export const GET = withErrorHandler(async (req: Request) => {
   const { userId } = await auth();
@@ -51,6 +52,7 @@ export const POST = withErrorHandler(async (req: Request) => {
   const { userId } = await auth();
   if (!userId) throw Errors.unauthorized();
 
+  // Rate limit check — prevent Gemini API abuse
   const { success, reset } = await chatRatelimit.limit(userId);
   if (!success) {
     const retryAfter = Math.ceil((reset - Date.now()) / 1000);
@@ -68,13 +70,36 @@ export const POST = withErrorHandler(async (req: Request) => {
     data: { text: question, isUserMessage: true, fileId, userId },
   });
 
+  // Fetch recent conversation history for this file
+  // Ordered desc to get latest first, then reversed below for chronological order
+  const recentMessages = await db.message.findMany({
+    where: { fileId, userId },
+    orderBy: { createdAt: "desc" },
+    // Add 1 to account for the user message we just saved above
+    // We exclude it from history since it is the current question
+    take: HISTORY_LIMIT + 1,
+    select: {
+      text: true,
+      isUserMessage: true,
+    },
+  });
+
+  // Reverse to chronological order and exclude the message we just saved
+  // which is always at index 0 after desc sort
+  const history = recentMessages
+    .slice(1) // remove the current question we just saved
+    .reverse(); // oldest first for correct conversation order
+
+  // Embed question for semantic search
   const queryVector = await embedSingleText(question);
 
+  // Search Qdrant for relevant PDF chunks
   const contextChunks = await searchPdfChunks({
     fileId,
     queryEmbedding: queryVector,
   });
 
+  // No relevant context found in document - return early with fallback message
   if (!contextChunks.length) {
     const fallback = "This information is not available in the document.";
     await db.message.create({
@@ -86,11 +111,26 @@ export const POST = withErrorHandler(async (req: Request) => {
   }
 
   const context = contextChunks.join("\n\n");
-  const prompt = buildChatPrompt({ context, question });
+
+  // Build system prompt with document context and rules
+  const systemPrompt = buildChatPrompt({ context });
+
+  // Format conversation history into Gemini multi-turn format
+  // Gemini uses "model" for assistant role, not "assistant"
+  const conversationHistory = history.map((m) => ({
+    role: m.isUserMessage ? "user" : ("model" as "user" | "model"),
+    parts: [{ text: m.text }],
+  }));
 
   const geminiStream = await genAI.models.generateContentStream({
     model: "gemini-2.5-flash",
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    config: { systemInstruction: systemPrompt },
+    contents: [
+      // Inject previous messages for short term memory
+      ...conversationHistory,
+      // Current question as the final user turn
+      { role: "user", parts: [{ text: question }] },
+    ],
   });
 
   let fullAnswer = "";
@@ -121,7 +161,7 @@ export const POST = withErrorHandler(async (req: Request) => {
       "Content-Type": "text/plain; charset=utf-8",
       "Transfer-Encoding": "chunked",
       "X-Content-Type-Options": "nosniff",
-       "X-RateLimit-Reset": reset.toString(),
+      "X-RateLimit-Reset": reset.toString(),
     },
   });
 });

@@ -1,9 +1,8 @@
 export function buildChatPrompt({
   context,
-  question,
 }: {
   context: string;
-  question: string;
+  // Remove question param — question is now the last turn in conversation
 }): string {
   return `
 You are an intelligent document assistant helping users understand and extract information from their PDF documents.
@@ -24,13 +23,9 @@ You answer questions strictly based on the document content provided in the cont
 - When citing specific facts, reference the source naturally (e.g. "According to the document...")
 - If the question is vague, answer based on the most reasonable interpretation given the context
 - If the context contains partial information, share what is available and note what is missing
+- You have access to the conversation history — use it to understand follow-up questions and references like "he", "it", "that", "the previous answer"
 
-## Context (extracted from the document)
+## Document Context
 ${context}
-
-## User Question
-${question}
-
-## Your Answer
-`.trim();
+  `.trim();
 }

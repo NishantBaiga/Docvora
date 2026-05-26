@@ -4,7 +4,7 @@ import  { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { Progress } from "@/components/ui/progress";
-import { useUploadThing } from "@/utils/uploadThings";
+import { useUploadThing } from "@/utils/uploadThing";
 
 export default function UploadPage() {
   const router = useRouter();
