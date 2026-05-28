@@ -104,7 +104,7 @@ export default function WorkspaceLayout({ fileId }: props) {
         {/* Main Content */}
         <main className="flex-1 ">
           {showEmptyState ? (
-            <EmptyState />
+            <EmptyState onRefetch={refetch} />
           ) : (
             <ResizablePanelGroup direction="horizontal" className="h-full">
               <ResizablePanel defaultSize={45} minSize={0}>

@@ -1,3 +1,4 @@
+import { inngest } from "@/inngest/client";
 import { db } from "@/lib/db";
 // import { syncUser } from "@/lib/sync-user";
 import { currentUser } from "@clerk/nextjs/server";
@@ -9,8 +10,6 @@ export const ourFileRouter = {
   pdfUploader: f({ pdf: { maxFileSize: "32MB", maxFileCount: 1 } })
     .middleware(async ({ req }) => {
       const user = await currentUser();
-      // console.log("username :", user?.username,"user id :",user?.id,"user email :",user?.emailAddresses[0]?.emailAddress);
-
       if (!user) throw new UploadThingError("Unauthorized");
       return {
         userId: user.id,
@@ -19,10 +18,8 @@ export const ourFileRouter = {
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // console.log("Uploadthing onUpload complete meta data:", metadata,"file url", file);
-
-      // Save file info to DB
-    const userFile =  await db.file.create({
+      // Save file meta data info to neonDB
+      const userFile = await db.file.create({
         data: {
           userId: metadata.userId,
           name: file.name,
@@ -33,9 +30,20 @@ export const ourFileRouter = {
         },
       });
 
+      // Trigger Inngest background job immediately after DB save
+      // This is fire-and-forget — does not block the upload response
+      await inngest.send({
+        name: "pdf/process",
+        data: {
+          fileId: userFile.id,
+          userId: metadata.userId,
+          fileUrl: file.ufsUrl, // pass URL so Inngest can fetch the PDF
+        },
+      });
+
       return {
         uploadedBy: metadata.userId,
-        fileId : userFile.id,
+        fileId: userFile.id,
         key: file.key,
         url: file.ufsUrl,
         name: file.name,

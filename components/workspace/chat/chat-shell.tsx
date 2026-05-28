@@ -3,12 +3,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/hooks/use-messages";
 import ChatMessage from "./chat-message";
 import ChatInput from "./chat-input";
 import ChatWelcome from "./chat-welcome";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 interface Props {
   fileId: string | null;
@@ -19,6 +20,13 @@ export default function ChatShell({ fileId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const prevScrollHeightRef = useRef<number>(0);
+
+  const {
+    status,
+    processingStatus,
+    loading: initLoading,
+    error: initError,
+  } = useWorkspace(fileId);
 
   const {
     messages,
@@ -78,6 +86,42 @@ export default function ChatShell({ fileId }: Props) {
     if (el.scrollTop < 80 && pagination?.hasMore && !loadingMore) {
       loadMore();
     }
+  }
+
+  if (initLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-1">
+          <p className="text-sm font-medium">
+            {processingStatus === "PENDING"
+              ? "Preparing your document..."
+              : "Processing document"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {processingStatus === "PENDING"
+              ? "Starting up the processing pipeline"
+              : "Extracting text, generating embeddings and storing vectors"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (initError || status === "error") {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
+        <div className="p-3 bg-destructive/10 rounded-full">
+          <AlertCircle className="h-6 w-6 text-destructive" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-medium">Processing failed</p>
+          <p className="text-xs text-muted-foreground">
+            {initError ?? "Could not process this document."}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

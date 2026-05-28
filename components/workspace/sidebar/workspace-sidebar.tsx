@@ -204,7 +204,7 @@ export default function WorkspaceSidebar({
       <SidebarFooter className="px-3 py-3 border-t">
         <SidebarFooterUser />
       </SidebarFooter>
-      <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen} />
+      <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen}  onRefetch={onRefetch} />
 
       <SearchDialog
         open={searchOpen}

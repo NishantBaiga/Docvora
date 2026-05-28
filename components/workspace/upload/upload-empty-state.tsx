@@ -5,7 +5,11 @@ import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 import UploadDropzone from "./upload-dropzone";
 
-export default function EmptyState() {
+
+interface Props {
+  onRefetch?: () => void; // add this
+}
+export default function EmptyState({ onRefetch }: Props) {
   return (
     <div className="flex items-center justify-center h-full bg-background">
       <motion.div
