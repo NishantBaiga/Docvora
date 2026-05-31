@@ -10,7 +10,6 @@ export default async function Home() {
 //     console.error("User sync error:", user);
 //   }
   return (
-    // <div className="flex flex-col min-h-screen items-center justify-center">
     <div className="flex flex-col w-full items-center justify-center">
       <HeroSection />
       <HowItWorkSection />

@@ -137,5 +137,3 @@ export default function WorkspaceLayout({ fileId }: props) {
     </>
   );
 }
-
-// sidebar provider ko layout se WorkspaceLayout me use karna hai
