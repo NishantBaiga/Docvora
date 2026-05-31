@@ -34,7 +34,7 @@ import { Input } from "@/components/ui/input";
 
 import { MoreVertical, Pencil, Trash } from "lucide-react";
 import { updateDocumentName } from "@/app/(server)/actions/updateDocumentName";
-import { deleteDocument } from "@/app/(server)/actions/deleteDocument";
+import { DeleteDocument } from "@/app/(server)/actions/deleteDocument";
 
 
 type Props = {
@@ -65,7 +65,7 @@ export function PdfActionsMenu({ fileId, currentName }: Props) {
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteDocument(fileId);
+      await DeleteDocument(fileId);
       setDeleteOpen(false);
       router.refresh();
     });

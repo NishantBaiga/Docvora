@@ -21,15 +21,12 @@ export default function HeroSection() {
     </p>
     
     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-      <a href="/upload">
+      <a href="/workspace">
         <Button  size="lg" className="shadow-2xl shadow-orange-400/50 w-full sm:w-auto cursor-pointer">
           Upload Your First PDF
         </Button>
       </a>
-      <Button variant="outline" size="lg" className="w-full sm:w-auto cursor-pointer">
-        See Demo
-        <ArrowRight className="w-4 h-4 ml-2" />
-      </Button>
+
     </div>
 
     {/* Stats Section */}

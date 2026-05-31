@@ -75,6 +75,7 @@ export default async function PdfListingPage({
     take: PAGE_SIZE,
   });
 
+  console.log("pdfs", pdfs);
   return (
     <section className="py-20 md:py-28 max-w-5xl mx-auto px-4">
       <h1 className="text-4xl sm:text-5xl font-extrabold text-center mb-10">
@@ -113,7 +114,7 @@ export default async function PdfListingPage({
         </div>
       )}
 
-{/* PDF LIST */}
+      {/* PDF LIST */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
         {pdfs.map((pdf) => (
           <div
@@ -134,7 +135,7 @@ export default async function PdfListingPage({
             <Link
               href={`/workspace/${pdf.id}`}
               className="block font-semibold text-lg text-gray-900 dark:text-white
-                   hover:text-orange-600 hover:underline transition-colors duration-200"
+                   hover:text-orange-600 hover:underline transition-colors duration-200 truncate"
             >
               <HighlightText text={pdf.name} query={query} />
             </Link>
