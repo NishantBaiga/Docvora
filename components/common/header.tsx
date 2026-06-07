@@ -4,7 +4,11 @@ import { Menu, X, FileText } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import NavLinks from "./navlink";
-import { SignedIn, SignedOut, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  SignInButton,
+  useAuth,
+  UserButton,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./theme-toggler";
@@ -12,6 +16,7 @@ import ThemeToggle from "./theme-toggler";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { isSignedIn } = useAuth();
 
   // Hide header on mobile for workspace pages
   const isWorkspacePage = pathname?.startsWith("/workspace");
@@ -39,17 +44,14 @@ export default function Header() {
             <ThemeToggle />
           </div>
 
-          <div className="hover:bg-gray-200 p-1 rounded-md cursor-pointer">
-            <SignedOut>
-              <SignUpButton>
-                <a href="/sign-in" className="cursor-pointer">
-                  Sign-in
-                </a>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
+          <div className=" p-1 rounded-md ">
+            {!isSignedIn ? (
+              <SignInButton>
+                <Button className="cursor-pointer">Sign In</Button>
+              </SignInButton>
+            ) : (
               <UserButton />
-            </SignedIn>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

@@ -1,7 +1,8 @@
-import { SignedIn } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 
 export default function NavLinks({ isMobile = false }: { isMobile?: boolean }) {
+  const { isSignedIn } = useAuth();
   return (
     <nav
       className={
@@ -21,14 +22,14 @@ export default function NavLinks({ isMobile = false }: { isMobile?: boolean }) {
         Pricing
       </Link>
 
-      <SignedIn>
+      {isSignedIn ? (
         <Link
           href="/pdfs"
           className="text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition-colors"
         >
           Your PDF's
         </Link>
-      </SignedIn>
+      ) : null}
     </nav>
   );
 }
