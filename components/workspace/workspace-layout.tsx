@@ -44,7 +44,7 @@ export default function WorkspaceLayout({ fileId }: props) {
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="flex-1 flex flex-col gap-0"
+          className="flex-1 flex flex-col gap-0 min-h-0 overflow-hidden"
         >
           {/* Top Bar with Hamburger and Tabs */}
           <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-950 border-b">
@@ -65,7 +65,7 @@ export default function WorkspaceLayout({ fileId }: props) {
           </div>
 
           {/* Tabs Content */}
-          <TabsContent value="chat" className="flex-1 m-0">
+          <TabsContent value="chat" className="flex-1 m-0 overflow-hidden min-h-0">
             <ErrorBoundary>
               <ChatShell fileId={fileId} />
             </ErrorBoundary>
