@@ -24,8 +24,4 @@ export const config = {
     url: requireEnv("UPSTASH_REDIS_REST_URL"),
     token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
   },
-  inngest: {
-    eventKey: requireEnv("INNGEST_EVENT_KEY"),
-    signingKey: requireEnv("INNGEST_SIGNING_KEY"),
-  },
 } as const;
