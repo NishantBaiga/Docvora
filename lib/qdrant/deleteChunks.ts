@@ -1,9 +1,9 @@
 // lib/qdrant/deleteChunks.ts
 import { qdrant } from "./qdrant";
 import { config } from "@/lib/config";
-
 export async function deletePdfChunks(fileId: string): Promise<void> {
-  await qdrant.delete(config.qdrant.collectionName, {
+  console.log(`Attempting to delete chunks for fileId: ${fileId}`);
+  const result = await qdrant.delete(config.qdrant.collectionName, {
     filter: {
       must: [
         {
@@ -16,6 +16,5 @@ export async function deletePdfChunks(fileId: string): Promise<void> {
     },
     wait: true,
   });
-
-  console.log(`Deleted all chunks for fileId: ${fileId}`);
+  console.log(`Qdrant delete result:`, JSON.stringify(result, null, 2));
 }
