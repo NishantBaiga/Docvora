@@ -1,5 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { FileRecord } from "@/types/type.pdf";
 import { formatDistanceToNow } from "date-fns";
 import { Ellipsis, FileText, Loader2, Trash2 } from "lucide-react";
@@ -17,6 +18,11 @@ export function FileItem({
   onSelect?: () => void;
   onDelete?: () => void;
 }) {
+
+    const {
+      processingStatus,
+    } = useWorkspace(file.id);
+
   return (
     <SidebarMenuItem className="relative group/item">
       <SidebarMenuButton
@@ -35,11 +41,10 @@ export function FileItem({
             })}
           </span>
         </div>
-        {file?.uploadStatus === "PROCESSING" && (
+        {processingStatus === "PROCESSING" && (
           <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" />
         )}
       </SidebarMenuButton>
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

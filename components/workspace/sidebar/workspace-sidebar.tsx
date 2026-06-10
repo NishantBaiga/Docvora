@@ -1,7 +1,6 @@
 "use client";
 
 import { Menu, Search, Plus } from "lucide-react";
-import { UserButton, useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import {
   Sidebar,
@@ -165,7 +164,7 @@ export default function WorkspaceSidebar({
             ))}
           </div>
         ) : files?.length === 0 ? (
-          <div className="p-4 text-center text-sm text-gray-500">
+          <div className="p-4 text-center text-sm text-gray-500 group-data-[state=collapsed]:hidden">
             {"No PDFs uploaded yet"}
           </div>
         ) : (
