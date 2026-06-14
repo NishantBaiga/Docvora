@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-// @ts-ignore: side-effect import for global CSS
+// @ts-ignore
 import "./globals.css";
 import Header from "@/components/common/header";
 import { ThemeProvider } from "next-themes";
@@ -18,26 +18,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pdf-summariser",
+  title: "AI Summarizer",
   description: "Summarise your PDFs with the power of AI",
 };
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ClerkThemeWrapper>
             <Header />
-            <div className="relative flex flex-col h-screen">
-              <SidebarProvider >
-                <main className="flex-1  ">{children}</main>
+            <div className="relative flex flex-col min-h-screen">
+              <SidebarProvider>
+                <main className="flex-1">{children}</main>
               </SidebarProvider>
             </div>
           </ClerkThemeWrapper>

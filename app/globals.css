@@ -51,33 +51,31 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* ENERGETIC ORANGE PRIMARY COLORS */
-  --primary: oklch(0.65 0.22 45.5); /* Vibrant orange */
+  --primary: oklch(0.65 0.22 45.5);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0.05 45.5); /* Orange tint for accent */
+  --accent: oklch(0.97 0.05 45.5);
   --accent-foreground: oklch(0.65 0.22 45.5);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.65 0.22 45.5); /* Orange ring */
-  /* ENERGETIC ORANGE CHART COLORS */
-  --chart-1: oklch(0.65 0.22 45.5); /* Primary orange */
-  --chart-2: oklch(0.8 0.18 45.5); /* Lighter orange */
-  --chart-3: oklch(0.7 0.15 120); /* Lime green accent */
-  --chart-4: oklch(0.85 0.12 45.5); /* Very light orange */
-  --chart-5: oklch(0.6 0.2 45.5); /* Darker orange */
+  --ring: oklch(0.65 0.22 45.5);
+  --chart-1: oklch(0.65 0.22 45.5);
+  --chart-2: oklch(0.8 0.18 45.5);
+  --chart-3: oklch(0.7 0.15 120);
+  --chart-4: oklch(0.85 0.12 45.5);
+  --chart-5: oklch(0.6 0.2 45.5);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.65 0.22 45.5); /* Orange sidebar primary */
+  --sidebar-primary: oklch(0.65 0.22 45.5);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.65 0.22 45.5); /* Orange sidebar ring */
+  --sidebar-ring: oklch(0.65 0.22 45.5);
 }
 
 .dark {
@@ -87,33 +85,31 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  /* DARK MODE ORANGE THEME */
-  --primary: oklch(0.75 0.18 45.5); /* Brighter orange for dark mode */
+  --primary: oklch(0.75 0.18 45.5);
   --primary-foreground: oklch(0.145 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0.05 45.5); /* Orange tint accent */
+  --accent: oklch(0.269 0.05 45.5);
   --accent-foreground: oklch(0.75 0.18 45.5);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.75 0.18 45.5); /* Orange ring for dark mode */
-  /* DARK MODE CHART COLORS */
-  --chart-1: oklch(0.75 0.18 45.5); /* Primary orange */
-  --chart-2: oklch(0.65 0.22 45.5); /* Vibrant orange */
-  --chart-3: oklch(0.7 0.15 120); /* Lime green accent */
-  --chart-4: oklch(0.8 0.12 45.5); /* Light orange */
-  --chart-5: oklch(0.6 0.2 45.5); /* Dark orange */
+  --ring: oklch(0.75 0.18 45.5);
+  --chart-1: oklch(0.75 0.18 45.5);
+  --chart-2: oklch(0.65 0.22 45.5);
+  --chart-3: oklch(0.7 0.15 120);
+  --chart-4: oklch(0.8 0.12 45.5);
+  --chart-5: oklch(0.6 0.2 45.5);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.75 0.18 45.5); /* Orange sidebar primary */
+  --sidebar-primary: oklch(0.75 0.18 45.5);
   --sidebar-primary-foreground: oklch(0.145 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.75 0.18 45.5); /* Orange sidebar ring */
+  --sidebar-ring: oklch(0.75 0.18 45.5);
 }
 
 @layer base {
@@ -125,30 +121,29 @@
   }
 }
 
-/* Additional energetic orange utility classes */
 @layer utilities {
-  .bg-orange-gradient {
+  .bg-brand-gradient {
     background: linear-gradient(135deg, oklch(0.65 0.22 45.5) 0%, oklch(0.8 0.18 45.5) 100%);
   }
 
-  .bg-orange-subtle {
-    background-color: oklch(0.98 0.05 45.5);
-  }
-
-  .text-orange-vibrant {
+  .text-brand {
     color: oklch(0.65 0.22 45.5);
   }
 
-  .border-orange-light {
-    border-color: oklch(0.9 0.1 45.5);
+  .shadow-brand-glow {
+    box-shadow: 0 4px 14px 0 oklch(0.65 0.22 45.5 / 0.25);
   }
 
-  .shadow-orange-glow {
-    box-shadow: 0 4px 14px 0 oklch(0.65 0.22 45.5 / 0.2);
+  .border-brand {
+    border-color: oklch(0.65 0.22 45.5);
+  }
+
+  .bg-brand-subtle {
+    background-color: oklch(0.98 0.05 45.5);
   }
 
   @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
 }

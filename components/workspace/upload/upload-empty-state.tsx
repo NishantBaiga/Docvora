@@ -38,7 +38,7 @@ export default function EmptyState({ onRefetch }: Props) {
           </p>
         </div>
 
-        <UploadDropzone />
+        <UploadDropzone onRefetch={onRefetch} />
       </motion.div>
     </div>
   );
