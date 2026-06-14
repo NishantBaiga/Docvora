@@ -63,7 +63,7 @@ export default function Header() {
             className="text-xl font-bold text-foreground flex items-center gap-2 shrink-0"
           >
             <FileText className="w-5 h-5 text-primary" />
-            AI Summarizer
+            Docvora
           </Link>
 
           {/* Nav — centered on desktop */}
@@ -131,7 +131,7 @@ export default function Header() {
                 className="flex items-center gap-2 font-bold text-foreground"
               >
                 <FileText className="w-5 h-5 text-primary" />
-                AI Summarizer
+                Docvora
               </Link>
               <Button variant="ghost" size="icon" onClick={closeMenu} aria-label="Close menu">
                 <X className="w-5 h-5" />

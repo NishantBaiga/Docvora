@@ -88,10 +88,14 @@ export default function WorkspaceSidebar({
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className=" text-lg font-semibold transition-opacity group-data-[state=collapsed]:hidden ">
-            <span className="text-lg font-semibold tracking-tight">logo</span>
+          <div className="transition-opacity group-data-[state=collapsed]:hidden">
+            <span className="text-lg font-semibold tracking-tight text-foreground">
+              Doc
+            </span>
+            <span className="text-lg font-semibold tracking-tight text-primary">
+              vora
+            </span>
           </div>
-
           {/* Collapse trigger */}
           <SidebarTrigger>
             <Menu className="h-5 w-5" />

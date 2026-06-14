@@ -80,7 +80,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">AI Summarizer</span>
+              <span className="text-xl font-bold text-foreground">Docvora</span>
             </div>
             <p className="text-muted-foreground mb-6 max-w-md text-sm leading-relaxed">
               Advanced AI-powered document summarization for enterprises.
@@ -144,7 +144,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
               <div className="text-muted-foreground text-sm">
-                © {currentYear} AI Summarizer. All rights reserved.
+                © {currentYear} Docvora. All rights reserved.
               </div>
               <div className="flex flex-wrap gap-4">
                 {legalLinks.map((link) => (

@@ -18,8 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Summarizer",
+  title: "Docvora",
   description: "Summarise your PDFs with the power of AI",
+  icons:{
+    icon:"/Docvora_light_logo.png",
+    apple:"/Docvora_light_logo.png"
+  }
 };
 
 export default async function RootLayout({
