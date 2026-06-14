@@ -11,7 +11,6 @@ import {
   SidebarGroup,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import UploadSheet from "../upload/upload-sheet";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,21 +63,19 @@ export default function WorkspaceSidebar({
   const [searchOpen, setSearchOpen] = useState(false);
   const { handleDelete, deletingId } = useDeleteDocument(onRefetch, files);
 
-
   // Group
- const groups = useMemo(() => groupFiles(files ?? []), [files]);
-
+  const groups = useMemo(() => groupFiles(files ?? []), [files]);
 
   useEffect(() => {
-  function handleKeyDown(e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-      e.preventDefault();
-      setSearchOpen(true);
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
     }
-  }
-  document.addEventListener("keydown", handleKeyDown);
-  return () => document.removeEventListener("keydown", handleKeyDown);
-}, []);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Navigate
   function navigate(id: string) {
@@ -122,24 +119,25 @@ export default function WorkspaceSidebar({
         </div>
 
         {/* Search */}
-        <div className="relative group-data-[state=collapsed]:hidden">
-          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <button
+        <div className="relative">
+          <Button
             type="button"
             onClick={() => setSearchOpen(true)}
             className="flex items-center gap-2 w-full h-8 px-2.5 rounded-md
-             bg-muted/50 hover:bg-muted text-muted-foreground
-             text-xs transition-colors group-data-[collapsible=icon]:hidden"
+            bg-muted/50 hover:bg-muted text-muted-foreground hover:text-primary
+            text-xs transition-colors
+            group-data-[state=collapsed]:w-8
+            group-data-[state=collapsed]:p-0
+            "
           >
-            <Search className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">Search PDFs…</span>
-            <kbd
-              className="ml-auto text-[10px] px-1 py-0.5 rounded bg-background
-                  border font-mono hidden sm:inline-block"
-            >
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="group-data-[state=collapsed]:hidden">
+              Search PDFs…
+            </span>
+            <kbd className="ml-auto text-[10px] px-1 py-0.5 rounded bg-background border font-mono hidden sm:inline-block group-data-[state=collapsed]:hidden">
               ⌘ K
             </kbd>
-          </button>
+          </Button>
         </div>
       </SidebarHeader>
 
@@ -204,8 +202,11 @@ export default function WorkspaceSidebar({
         <SidebarFooterUser />
       </SidebarFooter>
 
-      
-      <UploadSheet open={uploadOpen} onOpenChange={setUploadOpen}  onRefetch={onRefetch} />
+      <UploadSheet
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onRefetch={onRefetch}
+      />
       <SearchDialog
         open={searchOpen}
         onOpenChange={setSearchOpen}
